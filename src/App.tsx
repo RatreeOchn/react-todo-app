@@ -2,8 +2,10 @@ import { useState } from 'react';
 import Sidebar from '@/components/Layout/Sidebar';
 import Topbar from '@/components/Layout/Topbar';
 import MobileNav from '@/components/Layout/MobileNav';
-
-type Page = 'today' | 'all' | 'urgent' | 'shopping' | 'settings';
+import TasksPage from '@/pages/TasksPage';
+import ShoppingPage from '@/pages/ShoppingPage';
+import SettingsPage from '@/pages/SettingsPage';
+import { useAppStore } from '@/store/useAppStore';
 
 const THEME_CYCLE: string[] = ['warm', 'paper', 'ink'];
 const THEME_ICON: Record<string, string> = {
@@ -12,16 +14,8 @@ const THEME_ICON: Record<string, string> = {
   ink: 'ti-sun',
 };
 
-const CRUMB_LABEL: Record<Page, string> = {
-  today: new Date().toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long' }),
-  all: 'งานทั้งหมด',
-  urgent: 'งานด่วน',
-  shopping: 'รายการซื้อของ',
-  settings: 'Settings',
-};
-
 export default function App() {
-  const [page, setPage] = useState<Page>('today');
+  const currentPage = useAppStore((s) => s.currentPage);
   const [theme, setTheme] = useState('warm');
 
   function cycleTheme() {
@@ -30,29 +24,35 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', next);
   }
 
-  const counts = { today: 3, all: 5, urgent: 1, shop: 4 };
+  function renderPage() {
+    switch (currentPage) {
+      case 'shopping':
+        return <ShoppingPage />;
+      case 'settings':
+        return <SettingsPage />;
+      case 'today':
+      case 'all':
+      case 'urgent':
+      default:
+        return <TasksPage />;
+    }
+  }
 
   return (
     <div className="grid grid-cols-[240px_1fr] min-h-screen max-[880px]:grid-cols-[1fr] bg-(--bg) text-(--ink)">
       <div className="max-[880px]:hidden">
-        <Sidebar activePage={page} onNavigate={setPage} counts={counts} />
+        <Sidebar />
       </div>
 
       <main className="flex flex-col min-h-screen">
-        <Topbar
-          crumb={CRUMB_LABEL[page]}
-          onToggleTheme={cycleTheme}
-          themeIcon={THEME_ICON[theme]}
-        />
+        <Topbar onToggleTheme={cycleTheme} themeIcon={THEME_ICON[theme]} />
 
         <div className="hidden max-[880px]:block">
-          <MobileNav activePage={page} onNavigate={setPage} />
+          <MobileNav />
         </div>
 
         <div className="px-8 pb-20 pt-2 max-w-225 w-full mx-auto max-[880px]:px-4">
-          <p className="text-2xl font-medium text-(--ink-3) mt-16 text-center select-none">
-            Hello todo
-          </p>
+          {renderPage()}
         </div>
       </main>
     </div>

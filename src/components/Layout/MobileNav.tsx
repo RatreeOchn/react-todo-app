@@ -1,11 +1,6 @@
-type Page = 'today' | 'all' | 'urgent' | 'shopping' | 'settings';
+import { useAppStore, type PageId } from '@/store/useAppStore';
 
-interface MobileNavProps {
-  activePage: Page;
-  onNavigate: (page: Page) => void;
-}
-
-const ITEMS: { page: Page; icon: string; label: string }[] = [
+const ITEMS: { page: PageId; icon: string; label: string }[] = [
   { page: 'today', icon: 'ti-sun', label: 'วันนี้' },
   { page: 'all', icon: 'ti-list-check', label: 'ทั้งหมด' },
   { page: 'urgent', icon: 'ti-flame', label: 'ด่วน' },
@@ -13,7 +8,10 @@ const ITEMS: { page: Page; icon: string; label: string }[] = [
   { page: 'settings', icon: 'ti-settings', label: 'Settings' },
 ];
 
-export default function MobileNav({ activePage, onNavigate }: MobileNavProps) {
+export default function MobileNav() {
+  const activePage = useAppStore((s) => s.currentPage);
+  const onNavigate = useAppStore((s) => s.setCurrentPage);
+
   return (
     <nav className="flex items-center gap-1 overflow-x-auto px-4 py-2 border-b border-(--line) bg-(--bg)">
       {ITEMS.map(({ page, icon, label }) => (

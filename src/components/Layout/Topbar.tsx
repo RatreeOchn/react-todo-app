@@ -1,14 +1,26 @@
+import { useAppStore } from '@/store/useAppStore';
+
 interface TopbarProps {
-  crumb: string;
   onToggleTheme?: () => void;
   themeIcon?: string;
 }
 
-export default function Topbar({
-  crumb,
-  onToggleTheme,
-  themeIcon = 'ti-moon',
-}: TopbarProps) {
+const CRUMB_LABEL: Record<string, string> = {
+  today: new Date().toLocaleDateString('th-TH', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  }),
+  all: 'งานทั้งหมด',
+  urgent: 'งานด่วน',
+  shopping: 'รายการซื้อของ',
+  settings: 'Settings',
+};
+
+export default function Topbar({ onToggleTheme, themeIcon = 'ti-moon' }: TopbarProps) {
+  const currentPage = useAppStore((s) => s.currentPage);
+  const crumb = CRUMB_LABEL[currentPage];
+
   return (
     <div className="sticky top-0 z-50 flex items-center gap-4 px-8 py-4.5">
       <span className="text-xs text-(--ink-3)">{crumb}</span>

@@ -1,30 +1,25 @@
-type Page = 'today' | 'all' | 'urgent' | 'shopping' | 'settings';
-
-interface SidebarProps {
-  activePage: Page;
-  onNavigate: (page: Page) => void;
-  counts: { today: number; all: number; urgent: number; shop: number };
-}
+import { useAppStore, type PageId } from '@/store/useAppStore';
 
 const NAV_ITEMS: {
-  page: Page;
+  page: PageId;
   icon: string;
   label: string;
-  countKey?: keyof SidebarProps['counts'];
 }[] = [
-  { page: 'today', icon: 'ti-sun', label: 'วันนี้', countKey: 'today' },
-  { page: 'all', icon: 'ti-list-check', label: 'ทั้งหมด', countKey: 'all' },
-  { page: 'urgent', icon: 'ti-flame', label: 'ด่วน', countKey: 'urgent' },
+  { page: 'today', icon: 'ti-sun', label: 'วันนี้' },
+  { page: 'all', icon: 'ti-list-check', label: 'ทั้งหมด' },
+  { page: 'urgent', icon: 'ti-flame', label: 'ด่วน' },
 ];
 
 const LIST_ITEMS: {
-  page: Page;
+  page: PageId;
   icon: string;
   label: string;
-  countKey?: keyof SidebarProps['counts'];
-}[] = [{ page: 'shopping', icon: 'ti-shopping-cart', label: 'ซื้อของ', countKey: 'shop' }];
+}[] = [{ page: 'shopping', icon: 'ti-shopping-cart', label: 'ซื้อของ' }];
 
-export default function Sidebar({ activePage, onNavigate, counts }: SidebarProps) {
+export default function Sidebar() {
+  const activePage = useAppStore((s) => s.currentPage);
+  const onNavigate = useAppStore((s) => s.setCurrentPage);
+
   return (
     <aside className="w-60 h-[calc(100vh-24px)] sticky top-0 flex flex-col gap-1 px-4.5 py-6 overflow-y-auto bg-(--surface-2)/50 rounded-2xl m-3">
       <div className="flex items-center gap-1 px-3.5 pb-4.5 pt-3">
@@ -40,12 +35,11 @@ export default function Sidebar({ activePage, onNavigate, counts }: SidebarProps
         <p className="text-[10px] text-(--ink-3) uppercase tracking-[0.14em] font-medium px-3.5 pb-2">
           งาน
         </p>
-        {NAV_ITEMS.map(({ page, icon, label, countKey }) => (
+        {NAV_ITEMS.map(({ page, icon, label }) => (
           <NavItem
             key={page}
             icon={icon}
             label={label}
-            count={countKey ? counts[countKey] : undefined}
             active={activePage === page}
             onClick={() => onNavigate(page)}
           />
@@ -56,12 +50,11 @@ export default function Sidebar({ activePage, onNavigate, counts }: SidebarProps
         <p className="text-[10px] text-(--ink-3) uppercase tracking-[0.14em] font-medium px-3.5 pb-2">
           รายการ
         </p>
-        {LIST_ITEMS.map(({ page, icon, label, countKey }) => (
+        {LIST_ITEMS.map(({ page, icon, label }) => (
           <NavItem
             key={page}
             icon={icon}
             label={label}
-            count={countKey ? counts[countKey] : undefined}
             active={activePage === page}
             onClick={() => onNavigate(page)}
           />
@@ -103,9 +96,7 @@ function NavItem({
           : 'text-(--ink-2) hover:bg-(--surface-2) hover:text-(--ink)',
       ].join(' ')}
     >
-      <i
-        className={`ti ${icon} text-[17px] w-4.5 ${active ? 'text-(--ink)' : 'text-(--ink-3)'}`}
-      />
+      <i className={`ti ${icon} text-[17px] w-4.5 ${active ? 'text-(--ink)' : 'text-(--ink-3)'}`} />
       {label}
       {count !== undefined && (
         <span className="ml-auto text-[11px] text-(--ink-3) bg-(--surface-2) px-2 py-0.5 rounded-full min-w-5.5 text-center tabular-nums">
