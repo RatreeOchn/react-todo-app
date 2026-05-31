@@ -1,8 +1,6 @@
 import { createContext, type Dispatch } from 'react';
 import type { Task } from '@/types/task';
 
-export type PageId = 'today' | 'all' | 'urgent' | 'shopping' | 'settings';
-
 export type ThemeId = 'warm' | 'paper' | 'ink';
 
 export interface ToastItem {
@@ -12,7 +10,6 @@ export interface ToastItem {
 }
 
 export interface TodoState {
-  currentPage: PageId;
   tasks: Task[];
   tasksLoading: boolean;
   tasksError: string | null;
@@ -21,7 +18,6 @@ export interface TodoState {
 }
 
 export type TodoAction =
-  | { type: 'SET_PAGE'; payload: PageId }
   | { type: 'TASKS_LOADING' }
   | { type: 'TASKS_SUCCESS'; payload: Task[] }
   | { type: 'TASKS_ERROR'; payload: string }
@@ -33,7 +29,6 @@ export type TodoAction =
   | { type: 'TOAST_DISMISS'; payload: string };
 
 export const initialState: TodoState = {
-  currentPage: 'today',
   tasks: [],
   tasksLoading: false,
   tasksError: null,
@@ -43,9 +38,6 @@ export const initialState: TodoState = {
 
 export function todoReducer(state: TodoState, action: TodoAction): TodoState {
   switch (action.type) {
-    case 'SET_PAGE':
-      return { ...state, currentPage: action.payload };
-
     case 'TASKS_LOADING':
       return { ...state, tasksLoading: true, tasksError: null };
 
