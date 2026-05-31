@@ -7,8 +7,14 @@ export interface Task {
   priority?: PriorityId | null;
   remindIn?: number | null;
   note?: string | null;
-  expanded?: boolean;
   created: number;
 }
 
-export type NewTaskInput = Omit<Task, 'id' | 'done' | 'created'>;
+export type NewTaskInput = {
+  title: string;
+  priority?: PriorityId | null;
+  remindIn?: number | null;
+  note?: string | null;
+};
+
+export type UpdateTaskInput = Partial<Omit<Task, 'id' | 'created'>>;
