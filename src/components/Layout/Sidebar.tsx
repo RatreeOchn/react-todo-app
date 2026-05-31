@@ -1,24 +1,18 @@
-import { useAppStore, type PageId } from '@/store/useAppStore';
+import { useCurrentPage } from '@/hooks/useTasks';
+import type { PageId } from '@/context/todoContext';
 
-const NAV_ITEMS: {
-  page: PageId;
-  icon: string;
-  label: string;
-}[] = [
+const NAV_ITEMS: { page: PageId; icon: string; label: string }[] = [
   { page: 'today', icon: 'ti-sun', label: 'วันนี้' },
   { page: 'all', icon: 'ti-list-check', label: 'ทั้งหมด' },
   { page: 'urgent', icon: 'ti-flame', label: 'ด่วน' },
 ];
 
-const LIST_ITEMS: {
-  page: PageId;
-  icon: string;
-  label: string;
-}[] = [{ page: 'shopping', icon: 'ti-shopping-cart', label: 'ซื้อของ' }];
+const LIST_ITEMS: { page: PageId; icon: string; label: string }[] = [
+  { page: 'shopping', icon: 'ti-shopping-cart', label: 'ซื้อของ' },
+];
 
 export default function Sidebar() {
-  const activePage = useAppStore((s) => s.currentPage);
-  const onNavigate = useAppStore((s) => s.setCurrentPage);
+  const { currentPage: activePage, setCurrentPage: onNavigate } = useCurrentPage();
 
   return (
     <aside className="w-60 h-[calc(100vh-24px)] sticky top-0 flex flex-col gap-1 px-4.5 py-6 overflow-y-auto bg-(--surface-2)/50 rounded-2xl m-3">

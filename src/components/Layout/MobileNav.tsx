@@ -1,4 +1,5 @@
-import { useAppStore, type PageId } from '@/store/useAppStore';
+import { useCurrentPage } from '@/hooks/useTasks';
+import type { PageId } from '@/context/todoContext';
 
 const ITEMS: { page: PageId; icon: string; label: string }[] = [
   { page: 'today', icon: 'ti-sun', label: 'วันนี้' },
@@ -9,8 +10,7 @@ const ITEMS: { page: PageId; icon: string; label: string }[] = [
 ];
 
 export default function MobileNav() {
-  const activePage = useAppStore((s) => s.currentPage);
-  const onNavigate = useAppStore((s) => s.setCurrentPage);
+  const { currentPage: activePage, setCurrentPage: onNavigate } = useCurrentPage();
 
   return (
     <nav className="flex items-center gap-1 overflow-x-auto px-4 py-2 border-b border-(--line) bg-(--bg)">

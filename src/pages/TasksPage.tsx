@@ -1,12 +1,17 @@
 import { useMemo } from 'react';
-import { useAppStore } from '@/store/useAppStore';
+import { useTasks, useCurrentPage } from '@/hooks/useTasks';
+import { useFetchTasks } from '@/hooks/useFetchTasks';
 import TaskCard from '@/components/Task/TaskCard';
 import EmptyState from '@/components/EmptyState';
+import ErrorState from '@/components/ErrorState';
 import Hero from '@/components/Task/Hero';
+import QuickAdd from '@/components/Task/QuickAdd';
+import TaskListSkeleton from '@/components/Task/TaskListSkeleton';
 
 export default function TasksPage() {
-  const currentPage = useAppStore((s) => s.currentPage);
-  const tasks = useAppStore((s) => s.tasks);
+  const { currentPage } = useCurrentPage();
+  const { tasks, loading, error } = useTasks();
+  const { refetch } = useFetchTasks();
 
   const filteredTasks = useMemo(() => {
     if (currentPage === 'urgent') {
@@ -22,25 +27,35 @@ export default function TasksPage() {
     <div>
       <Hero />
 
-      {filteredTasks.length === 0 ? (
-        renderEmptyState(currentPage)
-      ) : (
-        <>
-          <div className="text-[13px] text-(--ink-3) mb-4">
-            {currentPage === 'urgent' ? (
-              <>{filteredTasks.length} งานด่วน</>
-            ) : (
-              <>
-                {activeCount} งาน · {doneCount} เสร็จแล้ว
-              </>
-            )}
-          </div>
+      {currentPage !== 'urgent' && <QuickAdd />}
 
-          <div className="flex flex-col gap-2">
-            {filteredTasks.map((task) => (
-              <TaskCard key={task.id} task={task} />
-            ))}
-          </div>
+      {loading && <TaskListSkeleton />}
+
+      {!loading && error && <ErrorState message={error} onRetry={refetch} />}
+
+      {!loading && !error && (
+        <>
+          {filteredTasks.length === 0 ? (
+            renderEmptyState(currentPage)
+          ) : (
+            <>
+              <div className="text-[13px] text-(--ink-3) mb-4">
+                {currentPage === 'urgent' ? (
+                  <>{filteredTasks.length} งานด่วน</>
+                ) : (
+                  <>
+                    {activeCount} งาน · {doneCount} เสร็จแล้ว
+                  </>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                {filteredTasks.map((task) => (
+                  <TaskCard key={task.id} task={task} />
+                ))}
+              </div>
+            </>
+          )}
         </>
       )}
     </div>
@@ -57,7 +72,6 @@ function renderEmptyState(currentPage: string) {
       />
     );
   }
-
   if (currentPage === 'all') {
     return (
       <EmptyState
@@ -67,7 +81,6 @@ function renderEmptyState(currentPage: string) {
       />
     );
   }
-
   return (
     <EmptyState
       icon="ti-confetti"

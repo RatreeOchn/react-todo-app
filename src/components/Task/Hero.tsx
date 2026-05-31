@@ -1,4 +1,4 @@
-import { useAppStore } from '@/store/useAppStore';
+import { useCurrentPage } from '@/hooks/useTasks';
 
 function getGreeting(): { text: string; icon: string } {
   const hour = new Date().getHours();
@@ -21,7 +21,7 @@ const PAGE_ICONS: Record<string, string> = {
 };
 
 export default function Hero() {
-  const currentPage = useAppStore((s) => s.currentPage);
+  const { currentPage } = useCurrentPage();
   const greeting = getGreeting();
 
   const title = PAGE_TITLES[currentPage] || 'วันนี้';
