@@ -1,7 +1,14 @@
 import { http, HttpResponse, delay } from 'msw';
 import { db } from './db';
 import { uid } from '@/utils/id';
-import type { Task, NewTaskInput, UpdateTaskInput } from '@/types/task';
+import type {
+  Task,
+  NewTaskInput,
+  UpdateTaskInput,
+  UpdateSubtaskInput,
+  NewSubtaskInput,
+  Subtask,
+} from '@/types/task';
 import type { ShopItem, NewShopInput, UpdateShopInput, Store } from '@/types/shop';
 
 const FAKE_DELAY = () => delay(300 + Math.random() * 200);
@@ -115,4 +122,71 @@ export const storeHandlers = [
   }),
 ];
 
-export const handlers = [...taskHandlers, ...shopHandlers, ...storeHandlers];
+export const subtaskHandlers = [
+  http.post('/api/tasks/:taskId/subtasks', async ({ params, request }) => {
+    await FAKE_DELAY();
+    const { taskId } = params;
+    const input = (await request.json()) as NewSubtaskInput;
+
+    const task = db.tasks.find((t) => t.id === taskId);
+    if (!task) {
+      return HttpResponse.json({ error: 'Task not found' }, { status: 404 });
+    }
+
+    task.subtasks = task.subtasks || [];
+    const nextOrder = task.subtasks.length + 1;
+
+    const newSubtask: Subtask = {
+      id: uid(),
+      title: input.title.trim(),
+      done: false,
+      order: nextOrder,
+    };
+
+    task.subtasks.push(newSubtask);
+    return HttpResponse.json(newSubtask, { status: 201 });
+  }),
+
+  http.patch('/api/tasks/:taskId/subtasks/:subId', async ({ params, request }) => {
+    await FAKE_DELAY();
+    const { taskId, subId } = params;
+    const patch = (await request.json()) as UpdateSubtaskInput;
+
+    const task = db.tasks.find((t) => t.id === taskId);
+    if (!task || !task.subtasks) {
+      return HttpResponse.json({ error: 'Task not found' }, { status: 404 });
+    }
+
+    const subIndex = task.subtasks.findIndex((s) => s.id === subId);
+    if (subIndex === -1) {
+      return HttpResponse.json({ error: 'Subtask not found' }, { status: 404 });
+    }
+
+    task.subtasks[subIndex] = { ...task.subtasks[subIndex], ...patch };
+    return HttpResponse.json(task.subtasks[subIndex]);
+  }),
+
+  http.delete('/api/tasks/:taskId/subtasks/:subId', async ({ params }) => {
+    await FAKE_DELAY();
+    const { taskId, subId } = params;
+
+    const task = db.tasks.find((t) => t.id === taskId);
+    if (!task || !task.subtasks) {
+      return HttpResponse.json({ error: 'Task not found' }, { status: 404 });
+    }
+
+    const subIndex = task.subtasks.findIndex((s) => s.id === subId);
+    if (subIndex === -1) {
+      return HttpResponse.json({ error: 'Subtask not found' }, { status: 404 });
+    }
+
+    task.subtasks.splice(subIndex, 1);
+    task.subtasks.forEach((s, i) => {
+      s.order = i + 1;
+    });
+
+    return HttpResponse.json({ success: true });
+  }),
+];
+
+export const handlers = [...taskHandlers, ...subtaskHandlers, ...shopHandlers, ...storeHandlers];

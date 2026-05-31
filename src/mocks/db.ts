@@ -9,10 +9,22 @@ export const db = {
       done: false,
       priority: 'urgent',
       remindIn: 5,
-      created: Date.now() - 4000,
+      created: Date.now() - 5000,
     },
     {
       id: 'seed-2',
+      title: 'ทำเค้กวันเกิดให้แม่',
+      done: false,
+      priority: 'warn',
+      created: Date.now() - 4000,
+      subtasks: [
+        { id: 'sub-1', title: 'ซื้อวัตถุดิบ', done: true, order: 1 },
+        { id: 'sub-2', title: 'อบเค้ก', done: false, order: 2 },
+        { id: 'sub-3', title: 'ปั่นครีมแต่งหน้า', done: false, order: 3 },
+      ],
+    },
+    {
+      id: 'seed-3',
       title: 'ตากผ้า',
       done: false,
       remindIn: 15,
@@ -20,14 +32,14 @@ export const db = {
       created: Date.now() - 3000,
     },
     {
-      id: 'seed-3',
+      id: 'seed-4',
       title: 'ส่งงานวิชาประวัติศาสตร์',
       done: false,
       priority: 'warn',
       created: Date.now() - 2000,
     },
     {
-      id: 'seed-4',
+      id: 'seed-5',
       title: 'รดน้ำต้นไม้',
       done: true,
       created: Date.now() - 1000,
@@ -40,12 +52,5 @@ export const db = {
     { id: 'fruit', name: 'ร้านผลไม้', icon: 'ti-apple' },
   ] as Store[],
 
-  shop: [
-    { id: 'i1', name: 'น้ำตาล', qty: '1 กก', store: 'lotus', done: false },
-    { id: 'i2', name: 'น้ำปลา', qty: '', store: 'lotus', done: false },
-    { id: 'i3', name: 'หมูสับ', qty: '2 กก', store: 'betagro', done: true },
-    { id: 'i4', name: 'ไข่ไก่', qty: '2 แผง', store: 'betagro', done: false },
-    { id: 'i5', name: 'ส้ม', qty: '1 กก', store: 'fruit', done: false },
-    { id: 'i6', name: 'นม UHT', qty: '', store: null, done: false },
-  ] as ShopItem[],
+  shop: [] as ShopItem[],
 };

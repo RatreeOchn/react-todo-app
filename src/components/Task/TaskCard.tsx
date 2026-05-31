@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useTodoContext } from '@/context/useTodoContext';
 import type { Task } from '@/types/task';
 import { todoApi } from '@/services/todoApi';
 import { uid } from '@/utils/id';
+import SubtaskList from './SubtaskList';
 
 interface TaskCardProps {
   task: Task;
@@ -17,6 +18,8 @@ export default function TaskCard({ task }: TaskCardProps) {
   const [prevTitle, setPrevTitle] = useState(task.title);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const [isExpanded, setIsExpanded] = useState(task.subtasks ? task.subtasks.length > 0 : false);
+
   if (task.title !== prevTitle) {
     setPrevTitle(task.title);
     if (!isEditing) {
@@ -30,6 +33,19 @@ export default function TaskCard({ task }: TaskCardProps) {
       inputRef.current?.select();
     }
   }, [isEditing]);
+
+  const progress = useMemo(() => {
+    const subs = task.subtasks || [];
+    if (subs.length === 0) return null;
+    const done = subs.filter((s) => s.done).length;
+    return {
+      total: subs.length,
+      done,
+      pct: Math.round((done / subs.length) * 100),
+    };
+  }, [task.subtasks]);
+
+  const hasSubtasks = (task.subtasks?.length ?? 0) > 0;
 
   async function handleToggle() {
     if (isEditing) return;
@@ -169,6 +185,23 @@ export default function TaskCard({ task }: TaskCardProps) {
             </button>
           )}
 
+          {!isEditing && progress && (
+            <div className="flex items-center gap-2.5 mt-2">
+              <span className="text-[11px] text-(--ink-3) tabular-nums">
+                {progress.done}/{progress.total}
+              </span>
+              <div className="flex-1 h-1.5 bg-(--surface-2) rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-(--ink) transition-all duration-300"
+                  style={{ width: `${progress.pct}%` }}
+                />
+              </div>
+              <span className="text-[11px] text-(--ink) font-medium tabular-nums">
+                {progress.pct}%
+              </span>
+            </div>
+          )}
+
           {!isEditing && task.note && !task.remindIn && (
             <div className="flex items-center gap-1.5 text-[11px] text-(--ink-3) mt-1">
               <i className="ti ti-note text-[12px]" />
@@ -178,7 +211,30 @@ export default function TaskCard({ task }: TaskCardProps) {
         </div>
 
         {!isEditing && (
-          <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shrink-0">
+          <div className="flex gap-0.5 shrink-0 items-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-(--ink-3) hover:bg-(--surface-2) hover:text-(--ink) transition-all"
+              aria-label={
+                hasSubtasks ? (isExpanded ? 'ย่อ' : 'ขยาย') : isExpanded ? 'ปิด' : 'เพิ่มขั้นย่อย'
+              }
+              title={
+                hasSubtasks ? (isExpanded ? 'ย่อ' : 'ขยาย') : isExpanded ? 'ปิด' : 'เพิ่มขั้นย่อย'
+              }
+            >
+              <i
+                className={`ti text-[14px] ${
+                  hasSubtasks
+                    ? isExpanded
+                      ? 'ti-chevron-up'
+                      : 'ti-chevron-down'
+                    : isExpanded
+                      ? 'ti-x'
+                      : 'ti-list-tree'
+                }`}
+              />
+            </button>
+
             <button
               onClick={startEdit}
               className="w-7 h-7 rounded-lg flex items-center justify-center text-(--ink-3) hover:bg-(--surface-2) hover:text-(--ink) transition-all"
@@ -198,6 +254,7 @@ export default function TaskCard({ task }: TaskCardProps) {
           </div>
         )}
       </div>
+      {!isEditing && isExpanded && <SubtaskList task={task} />}
     </div>
   );
 }

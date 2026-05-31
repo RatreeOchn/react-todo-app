@@ -1,5 +1,5 @@
 import { createContext, type Dispatch } from 'react';
-import type { Task } from '@/types/task';
+import type { Task, Subtask } from '@/types/task';
 
 export type ThemeId = 'warm' | 'paper' | 'ink';
 
@@ -24,6 +24,12 @@ export type TodoAction =
   | { type: 'TASK_ADDED'; payload: Task }
   | { type: 'TASK_UPDATED'; payload: { id: string; patch: Partial<Task> } }
   | { type: 'TASK_REMOVED'; payload: string }
+  | { type: 'SUBTASK_ADDED'; payload: { taskId: string; subtask: Subtask } }
+  | {
+      type: 'SUBTASK_UPDATED';
+      payload: { taskId: string; subId: string; patch: Partial<Subtask> };
+    }
+  | { type: 'SUBTASK_REMOVED'; payload: { taskId: string; subId: string } }
   | { type: 'SET_THEME'; payload: ThemeId }
   | { type: 'TOAST_SHOW'; payload: ToastItem }
   | { type: 'TOAST_DISMISS'; payload: string };
@@ -67,6 +73,49 @@ export function todoReducer(state: TodoState, action: TodoAction): TodoState {
       return {
         ...state,
         tasks: state.tasks.filter((t) => t.id !== action.payload),
+      };
+
+    case 'SUBTASK_ADDED':
+      return {
+        ...state,
+        tasks: state.tasks.map((t) =>
+          t.id === action.payload.taskId
+            ? {
+                ...t,
+                subtasks: [...(t.subtasks || []), action.payload.subtask],
+              }
+            : t,
+        ),
+      };
+
+    case 'SUBTASK_UPDATED':
+      return {
+        ...state,
+        tasks: state.tasks.map((t) =>
+          t.id === action.payload.taskId
+            ? {
+                ...t,
+                subtasks: t.subtasks?.map((s) =>
+                  s.id === action.payload.subId ? { ...s, ...action.payload.patch } : s,
+                ),
+              }
+            : t,
+        ),
+      };
+
+    case 'SUBTASK_REMOVED':
+      return {
+        ...state,
+        tasks: state.tasks.map((t) =>
+          t.id === action.payload.taskId
+            ? {
+                ...t,
+                subtasks: t.subtasks
+                  ?.filter((s) => s.id !== action.payload.subId)
+                  .map((s, i) => ({ ...s, order: i + 1 })), // re-order
+              }
+            : t,
+        ),
       };
 
     case 'SET_THEME':
