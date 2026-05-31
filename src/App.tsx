@@ -39,7 +39,7 @@ export default function App() {
   }
 
   return (
-    <div className="grid grid-cols-[240px_1fr] min-h-screen max-[880px]:grid-cols-[1fr] bg-(--bg) text-(--ink)">
+    <div className="grid grid-cols-[260px_1fr] min-h-screen max-[850px]:grid-cols-[1fr] bg-(--bg) text-(--ink)">
       <div className="max-[880px]:hidden">
         <Sidebar />
       </div>
@@ -47,11 +47,11 @@ export default function App() {
       <main className="flex flex-col min-h-screen">
         <Topbar onToggleTheme={cycleTheme} themeIcon={THEME_ICON[theme]} />
 
-        <div className="hidden max-[880px]:block">
+        <div className="hidden max-[850px]:block">
           <MobileNav />
         </div>
 
-        <div className="px-8 pb-20 pt-2 max-w-225 w-full mx-auto max-[880px]:px-4">
+        <div className="px-8 pb-20 pt-2 max-w-225 w-full mx-auto max-[850px]:px-4">
           {renderPage()}
         </div>
       </main>

@@ -22,7 +22,7 @@ export default function Topbar({ onToggleTheme, themeIcon = 'ti-moon' }: TopbarP
   const crumb = CRUMB_LABEL[currentPage];
 
   return (
-    <div className="sticky top-0 z-50 flex items-center gap-4 px-8 py-4.5">
+    <div className="sticky top-0 z-50 flex items-center gap-4 px-8 py-4.5 bg-(--bg)">
       <span className="text-xs text-(--ink-3)">{crumb}</span>
 
       <div className="ml-auto flex items-center gap-1.5">
